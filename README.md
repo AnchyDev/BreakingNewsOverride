@@ -11,6 +11,8 @@ You need this special branch to make it work: https://github.com/AnchyDev/azerot
 # Notes
 There is a small amount of html tags that are actually compatible, follow this guide here: https://wowwiki-archive.fandom.com/wiki/UIOBJECT_SimpleHTML
 
+You cannot have the character `[]` or `''` in your html file because of the way the payload is sent.
+
 # Credits
 
 Thanks to the AzerothCore community and Foe especially for getting this to work.
