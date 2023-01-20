@@ -3,6 +3,8 @@ This module allows you to override and show the breaking news frame on the left 
 
 You need this special branch to make it work: https://github.com/AnchyDev/azerothcore-wotlk/tree/warden
 
+![Image](https://cdn.discordapp.com/attachments/814444289181351968/1065844717994127370/Screenshot_2023-01-20_150406.png)
+
 # Setup
 - Create a html file which contains the body for your breaking news frame.
 - Set the path to the html file in the config.
