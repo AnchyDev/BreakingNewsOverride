@@ -6,6 +6,11 @@
 
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
 {
+    if (!bn_Enabled)
+    {
+        return true;
+    }
+
     if (packet.GetOpcode() == SMSG_CHAR_ENUM)
     {
         WardenWin* warden = (WardenWin*)session->GetWarden();
