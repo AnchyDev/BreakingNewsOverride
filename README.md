@@ -1,4 +1,6 @@
 # Breaking News Override
+This module allows you to override and show the breaking news frame on the left side of the character selection screen.
+
 You need this special branch to make it work: https://github.com/AnchyDev/azerothcore-wotlk/tree/warden
 
 # Setup
