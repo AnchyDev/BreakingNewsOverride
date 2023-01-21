@@ -4,6 +4,43 @@
 
 #include "BreakingNews.h"
 
+std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize)
+{
+    std::vector<std::string> chunks;
+
+    for (uint32_t i = 0; i < s.size(); i += chunkSize)
+    {
+        chunks.push_back(s.substr(i, chunkSize));
+    }
+
+    return chunks;
+}
+
+void SendChunkedPayload(Warden* warden, std::string payload, uint32 chunkSize)
+{
+    auto chunks = GetChunks(payload, chunkSize);
+
+    _prePayloadId = warden->RegisterPayload(prePayload);
+
+    warden->QueuePayload(_prePayloadId);
+    warden->ForceChecks();
+
+    for (auto const& chunk : chunks)
+    {
+        auto smallPayload = "wlbuf = wlbuf .. [[" + chunk + "]];";
+    
+        uint32 tempPayload = warden->RegisterPayload(smallPayload);
+        warden->QueuePayload(tempPayload);
+        warden->ForceChecks();
+        warden->UnregisterPayload(tempPayload);
+    }
+
+    _postPayloadId = warden->RegisterPayload(postPayload);
+
+    warden->QueuePayload(_postPayloadId);
+    warden->ForceChecks();
+}
+
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
 {
     if (!bn_Enabled)
@@ -24,7 +61,7 @@ bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket&
             return true;
         }
 
-        warden->SendChunkedPayload(bn_Formatted, 128);
+        SendChunkedPayload(warden, bn_Formatted, 128);
     }
 
     return true;
