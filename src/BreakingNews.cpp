@@ -18,26 +18,37 @@ std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize)
 
 void SendChunkedPayload(Warden* warden, std::string payload, uint32 chunkSize)
 {
+    auto payloadMgr = warden->GetPayloadMgr();
+    if (!payloadMgr)
+    {
+        return;
+    }
+
     auto chunks = GetChunks(payload, chunkSize);
 
-    _prePayloadId = warden->RegisterPayload(prePayload);
+    if (!payloadMgr->GetPayloadById(_prePayloadId))
+    {
+        payloadMgr->RegisterPayload(_prePayload, _prePayloadId);
+    }
 
-    warden->QueuePayload(_prePayloadId);
+    payloadMgr->QueuePayload(_prePayloadId);
     warden->ForceChecks();
 
     for (auto const& chunk : chunks)
     {
         auto smallPayload = "wlbuf = wlbuf .. [[" + chunk + "]];";
     
-        uint32 tempPayload = warden->RegisterPayload(smallPayload);
-        warden->QueuePayload(tempPayload);
+        payloadMgr->RegisterPayload(smallPayload, _tmpPayloadId, true);
+        payloadMgr->QueuePayload(_tmpPayloadId);
         warden->ForceChecks();
-        warden->UnregisterPayload(tempPayload);
     }
 
-    _postPayloadId = warden->RegisterPayload(postPayload);
+    if (!payloadMgr->GetPayloadById(_postPayloadId))
+    {
+        payloadMgr->RegisterPayload(_postPayload, _postPayloadId);
+    }
 
-    warden->QueuePayload(_postPayloadId);
+    payloadMgr->QueuePayload(_postPayloadId);
     warden->ForceChecks();
 }
 
