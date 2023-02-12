@@ -4,6 +4,48 @@
 
 #include "BreakingNews.h"
 
+std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize)
+{
+    std::vector<std::string> chunks;
+
+    for (uint32_t i = 0; i < s.size(); i += chunkSize)
+    {
+        chunks.push_back(s.substr(i, chunkSize));
+    }
+
+    return chunks;
+}
+
+void SendChunkedPayload(Warden* warden, WardenPayloadMgr* payloadMgr, std::string payload, uint32 chunkSize)
+{
+    auto chunks = GetChunks(payload, chunkSize);
+
+    if (!payloadMgr->GetPayloadById(_prePayloadId))
+    {
+        payloadMgr->RegisterPayload(_prePayload, _prePayloadId);
+    }
+
+    payloadMgr->QueuePayload(_prePayloadId);
+    warden->ForceChecks();
+
+    for (auto const& chunk : chunks)
+    {
+        auto smallPayload = "wlbuf = wlbuf .. [[" + chunk + "]];";
+    
+        payloadMgr->RegisterPayload(smallPayload, _tmpPayloadId, true);
+        payloadMgr->QueuePayload(_tmpPayloadId);
+        warden->ForceChecks();
+    }
+
+    if (!payloadMgr->GetPayloadById(_postPayloadId))
+    {
+        payloadMgr->RegisterPayload(_postPayload, _postPayloadId);
+    }
+
+    payloadMgr->QueuePayload(_postPayloadId);
+    warden->ForceChecks();
+}
+
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
 {
     if (!bn_Enabled)
@@ -24,7 +66,18 @@ bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket&
             return true;
         }
 
-        warden->SendChunkedPayload(bn_Formatted, 128);
+
+        auto payloadMgr = warden->GetPayloadMgr();
+        if (!payloadMgr)
+        {
+            return true;
+        }
+
+        // Just in-case there are some payloads in the queue, we don't want to send the incorrect payload.
+        payloadMgr->ClearQueuedPayloads();
+
+        // The client truncates warden packets to around 256 and our payload may be larger than that.
+        SendChunkedPayload(warden, payloadMgr, bn_Formatted, 128);
     }
 
     return true;

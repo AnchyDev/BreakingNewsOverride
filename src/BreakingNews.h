@@ -15,6 +15,15 @@ std::string bn_Title;
 std::string bn_Body;
 std::string bn_Formatted;
 
+std::string _prePayload = "wlbuf = '';";
+std::string _postPayload = "loadstring(wlbuf)();wlbuf = nil;";
+uint16 _prePayloadId = 5500;
+uint16 _postPayloadId = 5501;
+uint16 _tmpPayloadId = 5502;
+
+std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize);
+void SendChunkedPayload(Warden* warden, std::string payload, uint32 chunkSize);
+
 class BreakingNewsServerScript : ServerScript
 {
 public:
