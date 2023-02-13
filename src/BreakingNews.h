@@ -17,9 +17,9 @@ std::string bn_Formatted;
 
 std::string _prePayload = "wlbuf = '';";
 std::string _postPayload = "loadstring(wlbuf)();wlbuf = nil;";
-uint16 _prePayloadId = 5500;
-uint16 _postPayloadId = 5501;
-uint16 _tmpPayloadId = 5502;
+uint16 _prePayloadId = 9500;
+uint16 _postPayloadId = 9501;
+uint16 _tmpPayloadId = 9502;
 
 std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize);
 void SendChunkedPayload(Warden* warden, std::string payload, uint32 chunkSize);
@@ -31,6 +31,8 @@ public:
 
 private:
     bool CanPacketSend(WorldSession* session, WorldPacket& packet) override;
+    std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize);
+    void SendChunkedPayload(Warden* warden, WardenPayloadMgr* payloadMgr, std::string payload, uint32 chunkSize);
 };
 
 class BreakingNewsWorldScript : public WorldScript
@@ -39,7 +41,6 @@ public:
     BreakingNewsWorldScript() : WorldScript("BreakingNewsWorldScript") { }
 
 private:
-    bool TryReadFile(std::string& path, std::string& bn_Result);
     void OnAfterConfigLoad(bool reload) override;
 };
 
