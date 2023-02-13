@@ -143,7 +143,7 @@ bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket&
     return true;
 }
 
-void BreakingNewsWorldScript::OnAfterConfigLoad(bool reload)
+void BreakingNewsWorldScript::OnAfterConfigLoad(bool /*reload*/)
 {
     bn_Enabled = sConfigMgr->GetOption<bool>("BreakingNews.Enable", false);
 
