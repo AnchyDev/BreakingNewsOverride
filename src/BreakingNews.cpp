@@ -4,6 +4,102 @@
 
 #include "BreakingNews.h"
 
+bool TryReadFile(std::string& path, std::string& bn_Result)
+{
+    std::ifstream bn_File(path);
+
+    std::string bn_Buffer = "";
+
+    if (!bn_File.is_open())
+    {
+        return false;
+    }
+
+    while (std::getline(bn_File, bn_Buffer))
+    {
+        bn_Result = bn_Result + (bn_Buffer);
+    }
+
+    return true;
+}
+
+bool TryReadNews(std::string& bn_Result)
+{
+    std::string path = sConfigMgr->GetOption<std::string>("BreakingNews.HtmlPath", "./Updates.html");
+    bn_Title = sConfigMgr->GetOption<std::string>("BreakingNews.Title", "Breaking News");
+
+    if (path == "")
+    {
+        LOG_ERROR("module", "Failed to read 'BreakingNews.HtmlPath'.");
+        return false;
+    }
+
+    bn_Body = "";
+    if (!TryReadFile(path, bn_Body))
+    {
+        LOG_ERROR("module", "Failed to read file '{}'.", path);
+        return false;
+    }
+
+    return true;
+}
+
+std::vector<std::string> BreakingNewsServerScript::GetChunks(std::string s, uint8_t chunkSize)
+{
+    std::vector<std::string> chunks;
+
+    for (uint32_t i = 0; i < s.size(); i += chunkSize)
+    {
+        chunks.push_back(s.substr(i, chunkSize));
+    }
+
+    return chunks;
+}
+
+void BreakingNewsServerScript::SendChunkedPayload(Warden* warden, WardenPayloadMgr* payloadMgr, std::string payload, uint32 chunkSize)
+{
+    auto chunks = GetChunks(payload, chunkSize);
+
+    if (!payloadMgr->GetPayloadById(_prePayloadId))
+    {
+        payloadMgr->RegisterPayload(_prePayload, _prePayloadId);
+    }
+
+    payloadMgr->QueuePayload(_prePayloadId);
+    warden->ForceChecks();
+
+    for (auto const& chunk : chunks)
+    {
+        auto smallPayload = "wlbuf = wlbuf .. [[" + chunk + "]];";
+    
+        payloadMgr->RegisterPayload(smallPayload, _tmpPayloadId, true);
+        payloadMgr->QueuePayload(_tmpPayloadId);
+        warden->ForceChecks();
+    }
+
+    if (!payloadMgr->GetPayloadById(_postPayloadId))
+    {
+        payloadMgr->RegisterPayload(_postPayload, _postPayloadId);
+    }
+
+    payloadMgr->QueuePayload(_postPayloadId);
+    warden->ForceChecks();
+}
+
+void LoadBreakingNews()
+{
+    bn_Title = sConfigMgr->GetOption<std::string>("BreakingNews.Title", "Breaking News");
+
+    if (!TryReadNews(bn_Body))
+    {
+        LOG_ERROR("module", "Failed to read breaking news.");
+        return;
+    }
+
+    bn_Formatted = Acore::StringFormatFmt("local saf = ServerAlertFrame;saf:SetParent(CharacterSelect);ServerAlertTitle:SetText('{}');ServerAlertText:SetText('{}');saf:Show(); ", bn_Title, bn_Body);
+
+}
+
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
 {
     if (!bn_Enabled)
@@ -24,26 +120,24 @@ bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket&
             return true;
         }
 
-        warden->SendChunkedPayload(bn_Formatted, 128);
-    }
 
-    return true;
-}
+        auto payloadMgr = warden->GetPayloadMgr();
+        if (!payloadMgr)
+        {
+            return true;
+        }
 
-bool BreakingNewsWorldScript::TryReadFile(std::string& path, std::string& bn_Result)
-{
-    std::ifstream bn_File(path);
+        // Just in-case there are some payloads in the queue, we don't want to send the incorrect payload.
+        payloadMgr->ClearQueuedPayloads();
 
-    std::string bn_Buffer = "";
+        // Load in the updated news into the cache.
+        if (!sConfigMgr->GetOption<bool>("BreakingNews.Cache", false))
+        {
+            LoadBreakingNews();
+        }
 
-    if (!bn_File.is_open())
-    {
-        return false;
-    }
-
-    while (std::getline(bn_File, bn_Buffer))
-    {
-        bn_Result = bn_Result + (bn_Buffer);
+        // The client truncates warden packets to around 256 and our payload may be larger than that.
+        SendChunkedPayload(warden, payloadMgr, bn_Formatted, 128);
     }
 
     return true;
@@ -58,22 +152,7 @@ void BreakingNewsWorldScript::OnAfterConfigLoad(bool reload)
         return;
     }
 
-    bn_Title = sConfigMgr->GetOption<std::string>("BreakingNews.Title", "Breaking News");
-
-    std::string htmlPath = sConfigMgr->GetOption<std::string>("BreakingNews.HtmlPath", "./Updates.html");
-    if (htmlPath == "")
-    {
-        LOG_ERROR("module", "Failed to read 'BreakingNews.HtmlPath'.");
-        return;
-    }
-
-    if (!TryReadFile(htmlPath, bn_Body))
-    {
-        LOG_ERROR("module", "Failed to read file '{}'.", htmlPath);
-        return;
-    }
-
-    bn_Formatted = Acore::StringFormatFmt("local saf = ServerAlertFrame;saf:SetParent(CharacterSelect);ServerAlertTitle:SetText('{}');ServerAlertText:SetText('{}');saf:Show(); ", bn_Title, bn_Body);
+    LoadBreakingNews();
 }
 
 // Add all scripts in one

@@ -1,8 +1,6 @@
 # Breaking News Override
 This module allows you to override and show the breaking news frame on the left side of the character selection screen.
 
-You need this special branch to make it work: https://github.com/AnchyDev/azerothcore-wotlk/tree/warden
-
 ![Image](https://cdn.discordapp.com/attachments/814444289181351968/1065844717994127370/Screenshot_2023-01-20_150406.png)
 
 # Setup
@@ -13,7 +11,9 @@ You need this special branch to make it work: https://github.com/AnchyDev/azerot
 # Notes
 There is a small amount of html tags that are actually compatible, follow this guide here: https://wowwiki-archive.fandom.com/wiki/UIOBJECT_SimpleHTML
 
-You cannot have the character `[]` or `''` in your html file because of the way the payload is sent.
+You must escape the characters `[`, `]`, `'` in your html file because of the way the payload is sent.
+Example:
+`\'You think this hurts? Just wait.\'`
 
 # Credits
 
