@@ -32,3 +32,13 @@ BreakingNews.Title = "Breaking News"
 #
 
 BreakingNews.HtmlPath = "./breakingnews.html"
+
+#
+#    BreakingNews.Cache
+#        Description: Caches the breaking news on startup.
+#        Note: Setting this to 0 will pull the updated news from file every login.
+#                     0 - Disabled
+#        Default:     1 - Enabled
+#
+
+BreakingNews.Cache = 1
