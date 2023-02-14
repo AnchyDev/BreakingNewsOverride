@@ -9,6 +9,7 @@ bool TryReadFile(std::string& path, std::string& bn_Result)
     std::ifstream bn_File(path);
 
     std::string bn_Buffer = "";
+    bn_Result = "";
 
     if (!bn_File.is_open())
     {
@@ -34,8 +35,7 @@ bool TryReadNews(std::string& bn_Result)
         return false;
     }
 
-    bn_Body = "";
-    if (!TryReadFile(path, bn_Body))
+    if (!TryReadFile(path, bn_Result))
     {
         LOG_ERROR("module", "Failed to read file '{}'.", path);
         return false;
