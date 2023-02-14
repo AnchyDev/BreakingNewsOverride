@@ -42,3 +42,14 @@ BreakingNews.HtmlPath = "./breakingnews.html"
 #
 
 BreakingNews.Cache = 1
+
+#
+#    BreakingNews.Verbose
+#        Description: Enables verbose logs for debugging.
+#        Note: Don't leave this on in production.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+#
+
+BreakingNews.Verbose = 0
+

@@ -58,6 +58,8 @@ std::vector<std::string> BreakingNewsServerScript::GetChunks(std::string s, uint
 
 void BreakingNewsServerScript::SendChunkedPayload(Warden* warden, WardenPayloadMgr* payloadMgr, std::string payload, uint32 chunkSize)
 {
+    bool verbose = sConfigMgr->GetOption<bool>("BreakingNews.Verbose", false);
+
     auto chunks = GetChunks(payload, chunkSize);
 
     if (!payloadMgr->GetPayloadById(_prePayloadId))
@@ -68,6 +70,11 @@ void BreakingNewsServerScript::SendChunkedPayload(Warden* warden, WardenPayloadM
     payloadMgr->QueuePayload(_prePayloadId);
     warden->ForceChecks();
 
+    if (verbose)
+    {
+        LOG_INFO("module", "Sent pre-payload '{}'.", _prePayload);
+    }
+
     for (auto const& chunk : chunks)
     {
         auto smallPayload = "wlbuf = wlbuf .. [[" + chunk + "]];";
@@ -75,6 +82,11 @@ void BreakingNewsServerScript::SendChunkedPayload(Warden* warden, WardenPayloadM
         payloadMgr->RegisterPayload(smallPayload, _tmpPayloadId, true);
         payloadMgr->QueuePayload(_tmpPayloadId);
         warden->ForceChecks();
+
+        if (verbose)
+        {
+            LOG_INFO("module", "Sent mid-payload '{}'.", smallPayload);
+        }
     }
 
     if (!payloadMgr->GetPayloadById(_postPayloadId))
@@ -84,6 +96,11 @@ void BreakingNewsServerScript::SendChunkedPayload(Warden* warden, WardenPayloadM
 
     payloadMgr->QueuePayload(_postPayloadId);
     warden->ForceChecks();
+
+    if (verbose)
+    {
+        LOG_INFO("module", "Sent post-payload '{}'.", _postPayload);
+    }
 }
 
 void LoadBreakingNews()
@@ -97,7 +114,6 @@ void LoadBreakingNews()
     }
 
     bn_Formatted = Acore::StringFormatFmt("local saf = ServerAlertFrame;saf:SetParent(CharacterSelect);ServerAlertTitle:SetText('{}');ServerAlertText:SetText('{}');saf:Show(); ", bn_Title, bn_Body);
-
 }
 
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
