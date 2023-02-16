@@ -15,8 +15,9 @@ std::string bn_Title;
 std::string bn_Body;
 std::string bn_Formatted;
 
-std::string _prePayload = "wlbuf = '';";
-std::string _postPayload = "loadstring(wlbuf)();wlbuf = nil;";
+const std::string _prePayload = "wlbuf = '';";
+const std::string _postPayload = "loadstring(wlbuf)();wlbuf = nil;";
+const std::string _midPayloadFmt = "local saf = ServerAlertFrame;saf:SetParent(CharacterSelect);ServerAlertTitle:SetText('{}');ServerAlertText:SetText('{}');saf:Show();";
 uint16 _prePayloadId = 9500;
 uint16 _postPayloadId = 9501;
 uint16 _tmpPayloadId = 9502;

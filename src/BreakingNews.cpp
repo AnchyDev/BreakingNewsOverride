@@ -113,7 +113,7 @@ void LoadBreakingNews()
         return;
     }
 
-    bn_Formatted = Acore::StringFormatFmt("local saf = ServerAlertFrame;saf:SetParent(CharacterSelect);ServerAlertTitle:SetText('{}');ServerAlertText:SetText('{}');saf:Show(); ", bn_Title, bn_Body);
+    bn_Formatted = Acore::StringFormatFmt(_midPayloadFmt, bn_Title, bn_Body);
 }
 
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
