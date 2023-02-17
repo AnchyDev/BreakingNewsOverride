@@ -16,7 +16,7 @@ std::string bn_Body;
 std::string bn_Formatted;
 
 const std::string _prePayload = "wlbuf = '';";
-const std::string _postPayload = "loadstring(wlbuf)();wlbuf = nil;";
+const std::string _postPayload = "local a,b=loadstring(wlbuf)if not a then message(b)else a()end";
 const std::string _midPayloadFmt = "local a=ServerAlertFrame;local b=ServerAlertText;local c=ServerAlertTitle;local d=CharacterSelect;if a~=nil or b~=nil or c~=nil or d~=nil then a:SetParent(d)ServerAlertTitle:SetText('{}')ServerAlertText:SetText('{}')a:Show()else message('ServerAlert(Frame|Text|Title)/CharacterSelect Frame is nil.')end";
 uint16 _prePayloadId = 9500;
 uint16 _postPayloadId = 9501;
