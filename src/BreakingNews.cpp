@@ -21,6 +21,9 @@ bool TryReadFile(std::string& path, std::string& bn_Result)
         bn_Result = bn_Result + (bn_Buffer);
     }
 
+    bn_Result.erase(std::remove(bn_Result.begin(), bn_Result.end(), '\r'), bn_Result.cend());
+    bn_Result.erase(std::remove(bn_Result.begin(), bn_Result.end(), '\n'), bn_Result.cend());
+
     return true;
 }
 
