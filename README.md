@@ -1,13 +1,8 @@
+<img align="left" width="200" height="230" style="margin: 20px;" src="https://cdn.discordapp.com/attachments/814444289181351968/1077719446594002984/bkn.png">
+
 # Breaking News Override
-<p>
-<img align="left" width="200" height="230" src="https://cdn.discordapp.com/attachments/814444289181351968/1077719446594002984/bkn.png">
-This module allows you to override and show the breaking news frame on the left side of the character selection screen.
-</p>
-
-
-
-
-# Setup
+This module utilizes the Warden Payload Manager to enable the Breaking News frame on the left side of the character selection screen. You can feed it a html file defined the the config to use it.
+To use it you must:
 - Create a html file which contains the body for your breaking news frame.
 - Set the path to the html file in the config.
 - Enable the module and login to verify it works.
