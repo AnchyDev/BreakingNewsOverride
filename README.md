@@ -1,7 +1,11 @@
 # Breaking News Override
+<p>
+<img align="left" width="200" height="230" src="https://cdn.discordapp.com/attachments/814444289181351968/1077719446594002984/bkn.png">
 This module allows you to override and show the breaking news frame on the left side of the character selection screen.
+</p>
 
-![Image](https://cdn.discordapp.com/attachments/814444289181351968/1065844717994127370/Screenshot_2023-01-20_150406.png)
+
+
 
 # Setup
 - Create a html file which contains the body for your breaking news frame.
