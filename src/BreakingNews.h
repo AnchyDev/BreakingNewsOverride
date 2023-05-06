@@ -35,6 +35,7 @@ private:
     bool CanPacketSend(WorldSession* session, WorldPacket& packet) override;
     std::vector<std::string> GetChunks(std::string s, uint8_t chunkSize);
     void SendChunkedPayload(Warden* warden, WardenPayloadMgr* payloadMgr, std::string payload, uint32 chunkSize);
+    void SendBreakingNews(WorldSession* session);
 };
 
 class BreakingNewsWorldScript : public WorldScript

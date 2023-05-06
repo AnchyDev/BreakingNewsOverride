@@ -119,6 +119,48 @@ void LoadBreakingNews()
     bn_Formatted = Acore::StringFormatFmt(_midPayloadFmt, bn_Title, bn_Body);
 }
 
+void BreakingNewsServerScript::SendBreakingNews(WorldSession* session)
+{
+    WardenWin* warden = (WardenWin*)session->GetWarden();
+    if (!warden)
+    {
+        return;
+    }
+
+    // Trying to use Warden before it has initialized,
+    // so we exit.
+    if (!warden->IsInitialized())
+    {
+        return;
+    }
+
+    if (bn_Formatted == "")
+    {
+        return;
+    }
+
+
+    auto payloadMgr = warden->GetPayloadMgr();
+    if (!payloadMgr)
+    {
+        return;
+    }
+
+    // Just in-case there are some payloads in the queue, we don't want to send the incorrect payload.
+    payloadMgr->ClearQueuedPayloads();
+
+    // Load in the updated news into the cache.
+    if (!sConfigMgr->GetOption<bool>("BreakingNews.Cache", false))
+    {
+        LoadBreakingNews();
+    }
+
+    // The client truncates warden packets to around 256 and our payload may be larger than that.
+    SendChunkedPayload(warden, payloadMgr, bn_Formatted, 128);
+
+    warden->InterruptNextCheck();
+}
+
 bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket& packet)
 {
     if (!bn_Enabled)
@@ -128,43 +170,10 @@ bool BreakingNewsServerScript::CanPacketSend(WorldSession* session, WorldPacket&
 
     if (packet.GetOpcode() == SMSG_CHAR_ENUM)
     {
-        WardenWin* warden = (WardenWin*)session->GetWarden();
-        if (!warden)
-        {
-            return true;
-        }
-
-        // Trying to use Warden before it has initialized,
-        // so we exit.
-        if (!warden->IsInitialized())
-        {
-            return true;
-        }
-
-        if (bn_Formatted == "")
-        {
-            return true;
-        }
-
-
-        auto payloadMgr = warden->GetPayloadMgr();
-        if (!payloadMgr)
-        {
-            return true;
-        }
-
-        // Just in-case there are some payloads in the queue, we don't want to send the incorrect payload.
-        payloadMgr->ClearQueuedPayloads();
-
-        // Load in the updated news into the cache.
-        if (!sConfigMgr->GetOption<bool>("BreakingNews.Cache", false))
-        {
-            LoadBreakingNews();
-        }
-
-        // The client truncates warden packets to around 256 and our payload may be larger than that.
-        SendChunkedPayload(warden, payloadMgr, bn_Formatted, 128);
+        SendBreakingNews(session);
     }
+
+    //LOG_INFO("module", "Got OpCode: {}", std::format("{:x}", packet.GetOpcode()));
 
     return true;
 }
