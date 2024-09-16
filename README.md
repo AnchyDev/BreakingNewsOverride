@@ -1,7 +1,8 @@
+> [!CAUTION]
+> This repository is not being actively maintained, however there is an active [AC fork here](https://github.com/azerothcore/mod-breaking-news-override).
+
 # Breaking News Override
 This module utilizes the Warden Payload Manager to enable the Breaking News frame on the left side of the character selection screen. You can feed it a html file defined in the config to use it.
-
-<br><br><br>
 
 # Setup
 - Create a html file which contains the body for your breaking news frame.
@@ -16,5 +17,4 @@ Example:
 `\'You think this hurts? Just wait.\'`
 
 # Credits
-
 Thanks to the AzerothCore community and Foe especially for getting this to work.
